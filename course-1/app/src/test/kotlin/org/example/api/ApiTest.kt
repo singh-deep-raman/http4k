@@ -13,6 +13,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import java.util.UUID
 
 // it is by far the easiest to test http4k HttpHandler because it is just a function
 // we need not to start a server on the localhost to test the api, so everything is in the memory
@@ -57,6 +58,44 @@ class ApiTest {
             Moshi.asA<Array<Cat>>(response.bodyString()).toList()
         )
 
+    }
+
+    @Test
+    fun `get cat by id without lens`() {
+        val expectedCat1 = catService.addCat(
+            CatDto(
+                "Louis", LocalDate.now(), "don't know", "brown"
+            )
+        )
+        val response = api(Request(Method.GET, "/v1/cats/${expectedCat1.id}"))
+
+        assertEquals(Status.OK, response.status)
+        assertEquals(expectedCat1, Moshi.asA<Cat>(response.bodyString()))
+    }
+
+    @Test
+    fun `get cat by id with lens`() {
+        val expectedCat1 = catService.addCat(
+            CatDto(
+                "Louis123", LocalDate.now(), "234 don't know", "456 brown"
+            )
+        )
+        val response = api(Request(Method.GET, "v1/cats-with-lens/${expectedCat1.id}"))
+
+        assertEquals(Status.OK, response.status)
+        assertEquals(expectedCat1, Moshi.asA<Cat>(response.bodyString()))
+    }
+
+    @Test
+    fun `get cat by id with lens returns NOT FOUND`() {
+        val expectedCat1 = catService.addCat(
+            CatDto(
+                "Louis123", LocalDate.now(), "234 don't know", "456 brown"
+            )
+        )
+        val response = api(Request(Method.GET, "v1/cats-with-lens/${UUID.randomUUID()}"))
+
+        assertEquals(Status.NOT_FOUND, response.status)
     }
 
 }
