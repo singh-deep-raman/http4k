@@ -29,7 +29,7 @@ class CatService(private val clock: Clock) {
         return null
     }
 
-    fun addCat(catDto: CatDto) {
+    fun addCat(catDto: CatDto): Cat {
         val cat = Cat(
             id = UUID.randomUUID(),
             createdAt = clock.instant(),
@@ -39,5 +39,6 @@ class CatService(private val clock: Clock) {
             color = catDto.color,
         )
         cats += cat
+        return cat
     }
 }

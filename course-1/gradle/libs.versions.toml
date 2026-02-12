@@ -3,9 +3,13 @@
 
 [versions]
 guava = "33.4.6-jre"
+http4k = "6.27.0.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+http4k-bom = { module = "org.http4k:http4k-bom", version.ref = "http4k"}
+http4k-core = { module = "org.http4k:http4k-core" }
+http4k-moshi = { module = "org.http4k:http4k-format-moshi" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.21" }
