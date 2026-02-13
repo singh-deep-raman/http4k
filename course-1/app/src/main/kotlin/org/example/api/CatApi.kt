@@ -1,6 +1,7 @@
 package org.example.api
 
 import org.example.model.Cat
+import org.example.model.CatDto
 import org.example.service.CatService
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
@@ -17,8 +18,10 @@ import org.http4k.routing.path
 import org.http4k.routing.routes
 import java.util.UUID
 
-private val catIdLens = Path.uuid().of("catIdUsingLens")
-private val catLens = Body.auto<Cat>().toLens()
+// we should use the same lens in our tests as well, so that if someone changes the lens here, tests will break
+val catIdLens = Path.uuid().of("catIdUsingLens")
+val catLens = Body.auto<Cat>().toLens()
+val catBodyLens = Body.auto<CatDto>().toLens()
 
 fun CatService.api(): HttpHandler {
     return routes(
@@ -55,6 +58,16 @@ fun CatService.api(): HttpHandler {
                 Response(Status.OK)
                     .with(catLens of cat)
             } ?: Response(Status.NOT_FOUND)
+        },
+
+        // we can use lens to get request body from the request
+        "/v1/cats" bind Method.POST to { request ->
+            val catDto = catBodyLens(request)
+            val addedCat = addCat(catDto)
+            Response(Status.CREATED)
+                .with(catLens of addedCat)
         }
+
+
     )
 }

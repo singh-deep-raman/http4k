@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.http4k.moshi)
 
     testImplementation(libs.http4k.kotest)
+    testImplementation(libs.http4k.testing.approval)
 }
 
 testing {

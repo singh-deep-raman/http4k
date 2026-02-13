@@ -3,10 +3,12 @@ package org.example.service
 import org.example.model.Cat
 import org.example.model.CatDto
 import java.time.Clock
-import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
-class CatService(private val clock: Clock) {
+// for JsonApprovalTesting, we can't test it with a random uuid, so injecting one
+class CatService(private val clock: Clock,
+    private val uuidProvider: () -> UUID = { UUID.randomUUID() }
+    ) {
 
     private val cats = mutableListOf<Cat>()
 
@@ -31,7 +33,7 @@ class CatService(private val clock: Clock) {
 
     fun addCat(catDto: CatDto): Cat {
         val cat = Cat(
-            id = UUID.randomUUID(),
+            id = uuidProvider(),
             createdAt = clock.instant(),
             name = catDto.name,
             dateOfBirth = catDto.dateOfBirth,

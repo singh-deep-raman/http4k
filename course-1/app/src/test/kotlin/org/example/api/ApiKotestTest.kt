@@ -4,24 +4,30 @@ import io.kotest.matchers.be
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.example.service.CatService
-import org.http4k.core.Body
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Status
+import org.http4k.core.*
 import org.http4k.format.Moshi.auto
 import org.http4k.kotest.shouldHaveBody
 import org.http4k.kotest.shouldHaveStatus
+import org.http4k.testing.Approver
+import org.http4k.testing.JsonApprovalTest
+import org.http4k.testing.assertApproved
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
 
+// Use Testing: Approval to compare the responses of the api, we can't rely on lens because the data might be in bytes,
+// but when we use the lens to create a model/pojo, we won't know, so we need to do the JSON comparison here
+// Link - https://www.http4k.org/ecosystem/http4k/reference/approvaltests/
+@ExtendWith(JsonApprovalTest::class)
 class ApiKotestTest {
 
     private val catService = CatService(
-        Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC"))
+        Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC")),
+        { UUID.fromString("11111111-1111-1111-1111-111111111111") }
     )
 
     private val catApi = catService.api()
@@ -67,4 +73,16 @@ class ApiKotestTest {
 
     }
 
+    @Test
+    fun `should create a cat using lens for payload and also JsonApprovalTest for testing JSON`(approver: Approver) {
+        val response = Request(Method.POST, "/v1/cats")
+            .with(catBodyLens of CatDto(
+                "Test Louis", LocalDate.now(), "test-breed", "test-color"
+            ))
+            .let(catApi)
+
+        // it is going to create a JSON file with test-class name and test name.ACTUAL in test/resources folder
+        // you need to create a .APPROVED file which will have the expected response with same name as above
+        approver.assertApproved(response, Status.CREATED)
+    }
 }
