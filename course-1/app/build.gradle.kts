@@ -26,6 +26,8 @@ dependencies {
     implementation(platform(libs.http4k.bom))
     implementation(libs.http4k.core)
     implementation(libs.http4k.moshi)
+
+    testImplementation(libs.http4k.kotest)
 }
 
 testing {

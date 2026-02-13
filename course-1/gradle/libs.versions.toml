@@ -10,6 +10,6 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 http4k-bom = { module = "org.http4k:http4k-bom", version.ref = "http4k"}
 http4k-core = { module = "org.http4k:http4k-core" }
 http4k-moshi = { module = "org.http4k:http4k-format-moshi" }
-
+http4k-kotest = { module = "org.http4k:http4k-testing-kotest"}
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.21" }

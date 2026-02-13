@@ -17,8 +17,8 @@ import org.http4k.routing.path
 import org.http4k.routing.routes
 import java.util.UUID
 
-val catIdLens = Path.uuid().of("catIdUsingLens")
-val catLens = Body.auto<Cat>().toLens()
+private val catIdLens = Path.uuid().of("catIdUsingLens")
+private val catLens = Body.auto<Cat>().toLens()
 
 fun CatService.api(): HttpHandler {
     return routes(
@@ -30,15 +30,16 @@ fun CatService.api(): HttpHandler {
 
         // get by id endpoint without lens (see problems !! is being used at multiple places)
         "/v1/cats/{catId}" bind Method.GET to { request ->
-            // we are trying to get catId but it can be null also
+            // we are trying to get catId, but it can be null also
             val pathParamCatId = request.path("catId")!!
-            val cat = getCat(UUID.fromString(pathParamCatId))!!
-            Response(Status.OK).body(Moshi.asFormatString(cat))
+            val cat = getCat(UUID.fromString(pathParamCatId))
+            cat?.let { Response(Status.OK).body(Moshi.asFormatString(cat)) }
+                ?: Response(Status.NOT_FOUND)
         },
 
         // get by id endpoint with http4k lenses
         // An http4k lens is a way to get something in and out of a request
-        "v1/cats-with-lens/$catIdLens" bind Method.GET to { request ->
+        "/v1/cats-with-lens/$catIdLens" bind Method.GET to { request ->
             val catId = catIdLens(request)
             val cat = getCat(catId)
 
@@ -46,7 +47,7 @@ fun CatService.api(): HttpHandler {
         },
 
         // we can use lens to get body out of a response instead of Moshi like below
-        "v1/cats-with-body-lens/$catIdLens" bind Method.GET to { request ->
+        "/v1/cats-with-body-lens/$catIdLens" bind Method.GET to { request ->
             val catId = catIdLens(request)
             val cat = getCat(catId)
 
