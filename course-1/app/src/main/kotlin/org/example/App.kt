@@ -3,13 +3,17 @@
  */
 package org.example
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello World!"
-        }
-}
+import org.example.api.api
+import org.example.service.CatService
+import org.http4k.server.Jetty
+import org.http4k.server.asServer
+import java.time.Clock
 
 fun main() {
-    println(App().greeting)
+    CatService(Clock.systemUTC())
+        .api()
+        .asServer(Jetty(8080)) // you can use Jetty or JettyLoom which uses virtual threads
+        // .asServer(SunHttp(0)) - by default http4k comes with SunHttpServer, which should not be used in production
+        // if you want to use a different server, use one from this list: https://www.http4k.org/ecosystem/http4k/reference/servers/
+        .start()
 }

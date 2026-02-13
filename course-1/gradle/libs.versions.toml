@@ -12,6 +12,7 @@ http4k-core = { module = "org.http4k:http4k-core" }
 http4k-moshi = { module = "org.http4k:http4k-format-moshi" }
 http4k-kotest = { module = "org.http4k:http4k-testing-kotest"}
 http4k-testing-approval = { module = "org.http4k:http4k-testing-approval" }
+http4k-jetty = { module = "org.http4k:http4k-server-jetty" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.21" }
