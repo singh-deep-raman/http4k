@@ -88,7 +88,7 @@ class ApiTest {
 
     @Test
     fun `get cat by id with lens returns NOT FOUND`() {
-        val expectedCat1 = catService.addCat(
+        catService.addCat(
             CatDto(
                 "Louis123", LocalDate.now(), "234 don't know", "456 brown"
             )
