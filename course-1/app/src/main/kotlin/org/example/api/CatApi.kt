@@ -66,6 +66,13 @@ fun CatService.api(): HttpHandler {
             val addedCat = addCat(catDto)
             Response(Status.CREATED)
                 .with(catLens of addedCat)
+        },
+
+        "/v1/cats/$catIdLens" bind Method.DELETE to { request ->
+            val deleteCat = deleteCat(catIdLens(request))
+            deleteCat?.let {
+                Response(Status.NO_CONTENT)
+            } ?: Response(Status.NOT_FOUND)
         }
 
 

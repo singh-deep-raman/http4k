@@ -18,6 +18,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
+import kotlin.math.exp
 
 // Use Testing: Approval to compare the responses of the api, we can't rely on lens because the data might be in bytes,
 // but when we use the lens to create a model/pojo, we won't know, so we need to do the JSON comparison here
@@ -84,5 +85,17 @@ class ApiKotestTest {
         // it is going to create a JSON file with test-class name and test name.ACTUAL in test/resources folder
         // you need to create a .APPROVED file which will have the expected response with same name as above
         approver.assertApproved(response, Status.CREATED)
+    }
+
+    @Test
+    fun `should delete a cat`() {
+        val expectedCat = catService.addCat(
+            CatDto(
+                "Louis", LocalDate.now(), "don't know", "brown"
+            )
+        )
+        Request(Method.DELETE, "/v1/cats/${expectedCat.id}")
+            .let(catApi)
+            .shouldHaveStatus(Status.NO_CONTENT)
     }
 }
