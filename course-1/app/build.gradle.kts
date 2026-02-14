@@ -10,6 +10,8 @@
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
+    // SqlDelight plugin to generate kotlin code for database
+    alias(libs.plugins.sql.delight)
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -27,6 +29,7 @@ dependencies {
     implementation(libs.http4k.core)
     implementation(libs.http4k.moshi)
     implementation(libs.http4k.jetty)
+    implementation(libs.sqldelight.jdbc)
 
     testImplementation(libs.http4k.kotest)
     testImplementation(libs.http4k.testing.approval)
@@ -56,4 +59,14 @@ kotlin {
 application {
     // Define the main class for the application.
     mainClass = "org.example.AppKt"
+}
+
+// sqldelight configuration
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("org.example")
+            dialect("app.cash.sqldelight:mysql-dialect:2.2.1")
+        }
+    }
 }

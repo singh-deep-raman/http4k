@@ -4,6 +4,7 @@
 [versions]
 guava = "33.4.6-jre"
 http4k = "6.27.0.0"
+sqldelight-jdbc = "2.2.1"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -13,6 +14,8 @@ http4k-moshi = { module = "org.http4k:http4k-format-moshi" }
 http4k-kotest = { module = "org.http4k:http4k-testing-kotest"}
 http4k-testing-approval = { module = "org.http4k:http4k-testing-approval" }
 http4k-jetty = { module = "org.http4k:http4k-server-jetty" }
+sqldelight-jdbc = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight-jdbc"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.21" }
+sql-delight = { id = "app.cash.sqldelight", version = "2.2.1" }
