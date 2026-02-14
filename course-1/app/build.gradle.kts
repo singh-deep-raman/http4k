@@ -12,7 +12,6 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     // SqlDelight plugin to generate kotlin code for database
     alias(libs.plugins.sql.delight)
-
     // Apply the application plugin to add support for building a CLI application in Java.
     application
 }
@@ -33,6 +32,7 @@ dependencies {
 
     testImplementation(libs.http4k.kotest)
     testImplementation(libs.http4k.testing.approval)
+    testImplementation(libs.h2.db) // we are using in memory database for tests to avoid containers running in test using test containers
 }
 
 testing {

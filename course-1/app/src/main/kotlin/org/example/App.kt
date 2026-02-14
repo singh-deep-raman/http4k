@@ -10,7 +10,9 @@ import org.http4k.server.asServer
 import java.time.Clock
 
 fun main() {
-    CatService(Clock.systemUTC())
+    CatService(
+        TODO("Not implemented yet"),
+        Clock.systemUTC())
         .api()
         .asServer(Jetty(8080)) // you can use Jetty or JettyLoom which uses virtual threads
         // .asServer(SunHttp(0)) - by default http4k comes with SunHttpServer, which should not be used in production
