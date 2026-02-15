@@ -3,15 +3,32 @@
  */
 package org.example
 
+import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
+import org.example.repository.CatsRepository
 import org.example.service.CatService
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import java.time.Clock
 
 fun main() {
+
+    // Set below values, either in run configuration or using terminal
+    val dbConfig = HikariConfig().apply {
+        jdbcUrl = System.getenv("JDBC_DATABASE_URL")!!
+        username = System.getenv("JDBC_DATABASE_USERNAME")!!
+        password = System.getenv("JDBC_DATABASE_PASSWORD")!!
+    }
+
+    val datasource = HikariDataSource(dbConfig)
+        .asJdbcDriver()
+        .also { Database.Schema.create(it) }
+        .let { Database(it) }
+
     CatService(
-        TODO("Not implemented yet"),
+        CatsRepository(datasource.catsQueries),
         Clock.systemUTC())
         .api()
         .asServer(Jetty(8080)) // you can use Jetty or JettyLoom which uses virtual threads
