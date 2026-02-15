@@ -9,17 +9,27 @@ import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
 import org.example.repository.CatsRepository
 import org.example.service.CatService
+import org.http4k.config.Environment
+import org.http4k.config.EnvironmentKey
+import org.http4k.lens.secret
+import org.http4k.lens.string
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import java.time.Clock
 
-fun main() {
+val dbUrl = EnvironmentKey.string().required("JDBC_DATABASE_URL")
+val dbUser = EnvironmentKey.string().optional("JDBC_DATABASE_USERNAME")
+val dbPassword = EnvironmentKey.secret().required("JDBC_DATABASE_PASSWORD")
 
-    // Set below values, either in run configuration or using terminal
+fun createApp(
+    env: Environment,
+    clock: Clock
+): CatService {
+
     val dbConfig = HikariConfig().apply {
-        jdbcUrl = System.getenv("JDBC_DATABASE_URL")!!
-        username = System.getenv("JDBC_DATABASE_USERNAME")!!
-        password = System.getenv("JDBC_DATABASE_PASSWORD")!!
+        jdbcUrl = env[dbUrl]
+        username = env[dbUser]
+        password = env[dbPassword]?.use { it }
     }
 
     val datasource = HikariDataSource(dbConfig)
@@ -27,12 +37,18 @@ fun main() {
         .also { Database.Schema.create(it) }
         .let { Database(it) }
 
-    CatService(
+    // you can use Jetty or JettyLoom which uses virtual threads
+    // .asServer(SunHttp(0)) - by default http4k comes with SunHttpServer, which should not be used in production
+    // if you want to use a different server, use one from this list: https://www.http4k.org/ecosystem/http4k/reference/servers/
+    return CatService(
         CatsRepository(datasource.catsQueries),
-        Clock.systemUTC())
+        clock
+    )
+
+}
+fun main() {
+    createApp(Environment.ENV, Clock.systemUTC())
         .api()
-        .asServer(Jetty(8080)) // you can use Jetty or JettyLoom which uses virtual threads
-        // .asServer(SunHttp(0)) - by default http4k comes with SunHttpServer, which should not be used in production
-        // if you want to use a different server, use one from this list: https://www.http4k.org/ecosystem/http4k/reference/servers/
+        .asServer(Jetty(8080))
         .start()
 }

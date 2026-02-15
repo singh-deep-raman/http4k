@@ -1,12 +1,10 @@
 package org.example.api
 
-import app.cash.sqldelight.driver.jdbc.asJdbcDriver
-import org.example.Database
+import org.example.createApp
+import org.example.dbUrl
 import org.example.model.Cat
 import org.example.model.CatDto
-import org.example.repository.CatsRepository
-import org.example.service.CatService
-import org.h2.jdbcx.JdbcDataSource
+import org.http4k.config.Environment
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
@@ -24,15 +22,13 @@ import java.util.*
 // that is what makes http4k testing so easy and it will be like a unit test only
 class ApiTest {
 
-    private val dataSource = JdbcDataSource().apply {
-        setUrl("jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1")
-    }
-    private val database = dataSource.asJdbcDriver()
-        .also { Database.Schema.create(it) }
-        .let { Database(it) }
-
     private val fixedClock: Clock = Clock.fixed(Instant.parse("2026-02-04T00:00:00Z"), ZoneOffset.UTC)
-    private val catService = CatService(CatsRepository(database.catsQueries), fixedClock)
+    private val catService = createApp(
+        Environment.defaults(
+            dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1"
+        ),
+        fixedClock
+    )
 
     private val api = catService.api()
 

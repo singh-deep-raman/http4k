@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.http4k.core)
     implementation(libs.http4k.moshi)
     implementation(libs.http4k.jetty)
+    implementation(libs.http4k.config)
     implementation(libs.sqldelight.jdbc)
     implementation(libs.hikari)
     runtimeOnly(libs.mysql.driver) // we need this driver so that Hikari our datasource can talk to actual mariadb using this driver
