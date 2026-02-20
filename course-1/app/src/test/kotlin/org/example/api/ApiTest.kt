@@ -45,11 +45,13 @@ class ApiTest {
     @Test
     fun `list cats with single cat`() {
         val expectedCat1 = catService.addCat(
+            "user1",
             CatDto(
                 "Louis", LocalDate.now(), "don't know", "brown"
             )
         )
         val expectedCat2 = catService.addCat(
+            "user2",
             CatDto(
                 "Mike", LocalDate.now(), "know", "white"
             )
@@ -70,6 +72,7 @@ class ApiTest {
     @Test
     fun `get cat by id without lens`() {
         val expectedCat1 = catService.addCat(
+            "user3",
             CatDto(
                 "Louis", LocalDate.now(), "don't know", "brown"
             )
@@ -83,6 +86,7 @@ class ApiTest {
     @Test
     fun `get cat by id with lens`() {
         val expectedCat1 = catService.addCat(
+            "user4",
             CatDto(
                 "Louis123", LocalDate.now(), "234 don't know", "456 brown"
             )
@@ -96,6 +100,7 @@ class ApiTest {
     @Test
     fun `get cat by id with lens returns NOT FOUND`() {
         catService.addCat(
+            "user5",
             CatDto(
                 "Louis123", LocalDate.now(), "234 don't know", "456 brown"
             )

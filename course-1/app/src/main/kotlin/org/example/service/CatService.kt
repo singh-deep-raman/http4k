@@ -13,8 +13,6 @@ class CatService(
     private val uuidProvider: () -> UUID = { UUID.randomUUID() }
     ) {
 
-    private val cats = mutableListOf<Cat>()
-
     fun getCat(id: UUID): Cat? {
         return catsRepository.getCatById(id)
     }
@@ -31,9 +29,10 @@ class CatService(
             }
     }
 
-    fun addCat(catDto: CatDto): Cat {
+    fun addCat(userId: String, catDto: CatDto): Cat {
         val cat = Cat(
             id = uuidProvider(),
+            userId = userId,
             createdAt = clock.instant(),
             name = catDto.name,
             dateOfBirth = catDto.dateOfBirth,

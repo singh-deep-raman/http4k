@@ -25,6 +25,7 @@ class CatsRepository(
     fun createCat(cat: Cat) {
         catsQueries.createCat(
             cat.id.toString(),
+            cat.userId,
             cat.createdAt.atOffset(ZoneOffset.UTC),
             cat.name,
             cat.dateOfBirth,
@@ -40,6 +41,7 @@ class CatsRepository(
 
 private fun Cats.toCat() = Cat(
     id = UUID.fromString(id),
+    userId = user_id,
     createdAt = created_at.toInstant(),
     color = color,
     breed = breed,

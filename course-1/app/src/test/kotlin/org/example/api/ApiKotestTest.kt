@@ -73,6 +73,7 @@ class ApiKotestTest {
     @Test
     fun `should return get cat by id`() {
         val expectedCat = catService.addCat(
+            "user1",
             CatDto(
                 "Louis", LocalDate.now(), "don't know", "brown"
             )
@@ -97,6 +98,7 @@ class ApiKotestTest {
     @Test
     fun `kotest assert status code and body `() {
         val expectedCat = catService.addCat(
+            "user2",
             CatDto(
                 "Louis", LocalDate.now(), "don't know", "brown"
             )
@@ -113,9 +115,11 @@ class ApiKotestTest {
     @Test
     fun `should create a cat using lens for payload and also JsonApprovalTest for testing JSON`(approver: Approver) {
         val response = Request(Method.POST, "/v1/cats")
-            .with(catBodyLens of CatDto(
-                "Test Louis", LocalDate.parse("2026-01-01"), "test-breed", "test-color"
-            ))
+            .with(
+                catBodyLens of CatDto(
+                    "Test Louis", LocalDate.parse("2026-01-01"), "test-breed", "test-color"
+                )
+            )
             .let(catApi)
 
         // it is going to create a JSON file with test-class name and test name.ACTUAL in test/resources folder
@@ -126,6 +130,7 @@ class ApiKotestTest {
     @Test
     fun `should delete a cat`() {
         val expectedCat = catService.addCat(
+            "user3",
             CatDto(
                 "Louis", LocalDate.now(), "don't know", "brown"
             )

@@ -12,6 +12,7 @@ import org.http4k.core.with
 import org.http4k.format.Moshi
 import org.http4k.format.Moshi.auto
 import org.http4k.lens.Path
+import org.http4k.lens.RequestKey
 import org.http4k.lens.uuid
 import org.http4k.routing.bind
 import org.http4k.routing.path
@@ -24,6 +25,9 @@ val catLens = Body.auto<Cat>().toLens()
 val catBodyLens = Body.auto<CatDto>().toLens()
 
 fun CatService.api(): HttpHandler {
+
+    val userIdLens = RequestKey.required<String>("userId")
+
     return routes(
         // below is a controller endpoint, you can add as many as you want
         "/v1/cats" bind Method.GET to {
@@ -63,12 +67,19 @@ fun CatService.api(): HttpHandler {
         // we can use lens to get request body from the request
         "/v1/cats" bind Method.POST to { request ->
             val catDto = catBodyLens(request)
-            val addedCat = addCat(catDto)
+            val userId = userIdLens(request)
+            val addedCat = addCat(userId, catDto)
             Response(Status.CREATED)
                 .with(catLens of addedCat)
         },
 
-        "/v1/cats/$catIdLens" bind Method.DELETE to { request ->
+        "/v1/cats/$catIdLens" bind Method.DELETE to fnname@ { request ->
+            val userId = userIdLens(request)
+            val cat = getCat(catIdLens(request)) ?: return@fnname Response(Status.NOT_FOUND)
+
+            if (cat.userId != userId)
+                return@fnname Response(Status.FORBIDDEN)
+
             val deleteCat = deleteCat(catIdLens(request))
             deleteCat?.let {
                 Response(Status.NO_CONTENT)
