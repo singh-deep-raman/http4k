@@ -1,6 +1,7 @@
 package org.example.api
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.auth0.jwt.JWT
 import io.kotest.matchers.be
 import org.example.Database
 import org.example.model.Cat
@@ -22,7 +23,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
-import kotlin.math.exp
 
 // Use Testing: Approval to compare the responses of the api, we can't rely on lens because the data might be in bytes,
 // but when we use the lens to create a model/pojo, we won't know, so we need to do the JSON comparison here
@@ -64,7 +64,8 @@ class ApiKotestTest {
     private val catService = CatService(
         CatsRepository(database.catsQueries),
         Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC")),
-        { UUID.fromString("11111111-1111-1111-1111-111111111111") }
+        { UUID.fromString("11111111-1111-1111-1111-111111111111") },
+        jwtVerifier = JWT.require(null).build()
     )
 
     private val catApi = catService.api()

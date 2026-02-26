@@ -1,17 +1,21 @@
 package org.example.service
 
+import com.auth0.jwt.JWTVerifier
+import com.auth0.jwt.exceptions.JWTVerificationException
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.example.repository.CatsRepository
 import java.time.Clock
 import java.util.*
 
+
 // for JsonApprovalTesting, we can't test it with a random uuid, so injecting one
 class CatService(
     private val catsRepository: CatsRepository,
     private val clock: Clock,
-    private val uuidProvider: () -> UUID = { UUID.randomUUID() }
-    ) {
+    private val uuidProvider: () -> UUID = { UUID.randomUUID() },
+    private val jwtVerifier: JWTVerifier
+) {
 
     fun getCat(id: UUID): Cat? {
         return catsRepository.getCatById(id)
@@ -41,5 +45,13 @@ class CatService(
         )
         catsRepository.createCat(cat)
         return cat
+    }
+
+    fun verify(token: String): String? {
+        return try {
+            jwtVerifier.verify(token).subject
+        } catch (e: JWTVerificationException) {
+            null
+        }
     }
 }

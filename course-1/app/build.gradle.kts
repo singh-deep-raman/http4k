@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.sqldelight.jdbc)
     implementation(libs.hikari)
     runtimeOnly(libs.mysql.driver) // we need this driver so that Hikari our datasource can talk to actual mariadb using this driver
+    implementation(libs.auth0)
 
     testImplementation(libs.http4k.kotest)
     testImplementation(libs.http4k.testing.approval)

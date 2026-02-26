@@ -8,7 +8,9 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.core.then
 import org.http4k.core.with
+import org.http4k.filter.ServerFilters
 import org.http4k.format.Moshi
 import org.http4k.format.Moshi.auto
 import org.http4k.lens.Path
@@ -65,27 +67,28 @@ fun CatService.api(): HttpHandler {
         },
 
         // we can use lens to get request body from the request
-        "/v1/cats" bind Method.POST to { request ->
-            val catDto = catBodyLens(request)
-            val userId = userIdLens(request)
-            val addedCat = addCat(userId, catDto)
-            Response(Status.CREATED)
-                .with(catLens of addedCat)
-        },
+        ServerFilters.BearerAuth(userIdLens, ::verify).then(routes(
+            "/v1/cats" bind Method.POST to { request ->
+                val catDto = catBodyLens(request)
+                val userId = userIdLens(request)
+                val addedCat = addCat(userId, catDto)
+                Response(Status.CREATED)
+                    .with(catLens of addedCat)
+            },
 
-        "/v1/cats/$catIdLens" bind Method.DELETE to fnname@ { request ->
-            val userId = userIdLens(request)
-            val cat = getCat(catIdLens(request)) ?: return@fnname Response(Status.NOT_FOUND)
+            "/v1/cats/$catIdLens" bind Method.DELETE to fnname@ { request ->
+                val userId = userIdLens(request)
+                val cat = getCat(catIdLens(request)) ?: return@fnname Response(Status.NOT_FOUND)
 
-            if (cat.userId != userId)
-                return@fnname Response(Status.FORBIDDEN)
+                if (cat.userId != userId)
+                    return@fnname Response(Status.FORBIDDEN)
 
-            val deleteCat = deleteCat(catIdLens(request))
-            deleteCat?.let {
-                Response(Status.NO_CONTENT)
-            } ?: Response(Status.NOT_FOUND)
-        }
-
+                val deleteCat = deleteCat(catIdLens(request))
+                deleteCat?.let {
+                    Response(Status.NO_CONTENT)
+                } ?: Response(Status.NOT_FOUND)
+            }
+        ))
 
     )
 }

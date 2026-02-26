@@ -4,22 +4,35 @@
 package org.example
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
+import com.auth0.jwt.algorithms.Algorithm
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
 import org.example.repository.CatsRepository
 import org.example.service.CatService
+import org.http4k.base64DecodedArray
 import org.http4k.config.Environment
 import org.http4k.config.EnvironmentKey
+import org.http4k.lens.base64
 import org.http4k.lens.secret
 import org.http4k.lens.string
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
+import java.security.KeyFactory
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.X509EncodedKeySpec
 import java.time.Clock
 
 val dbUrl = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 val dbUser = EnvironmentKey.string().optional("JDBC_DATABASE_USERNAME")
 val dbPassword = EnvironmentKey.secret().required("JDBC_DATABASE_PASSWORD")
+
+// JWT related environment variables
+val publicKey = EnvironmentKey.base64().required("PUBLIC_KEY")
+val issuer = EnvironmentKey.string().required("ISSUER")
+val audience = EnvironmentKey.string().required("AUDIENCE")
 
 fun createApp(
     env: Environment,
@@ -42,10 +55,22 @@ fun createApp(
     // if you want to use a different server, use one from this list: https://www.http4k.org/ecosystem/http4k/reference/servers/
     return CatService(
         CatsRepository(datasource.catsQueries),
-        clock
+        clock,
+        jwtVerifier = getJwtVerifier(env)
     )
 
 }
+
+fun getJwtVerifier(env: Environment): JWTVerifier {
+    val keySpec = X509EncodedKeySpec(env[publicKey].base64DecodedArray())
+    val rsaPublicKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
+    val algorithm: Algorithm = Algorithm.RSA256(rsaPublicKey as RSAPublicKey, null)
+    return JWT.require(algorithm) // specify any specific claim validations
+        .withIssuer(env[issuer])
+        .withAudience(env[audience] )
+        .build()
+}
+
 fun main() {
     createApp(Environment.ENV, Clock.systemUTC())
         .api()
