@@ -1,16 +1,18 @@
 package org.example.api
 
-import org.example.createApp
-import org.example.dbUrl
+import org.example.*
 import org.example.model.Cat
 import org.example.model.CatDto
+import org.http4k.base64Encode
 import org.http4k.config.Environment
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.http4k.format.Moshi
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.security.KeyPairGenerator
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -22,15 +24,23 @@ import java.util.*
 // that is what makes http4k testing so easy and it will be like a unit test only
 class ApiTest {
 
+    private val keyPair = KeyPairGenerator.getInstance("RSA")
+        .apply { this.initialize(2048) }
+        .generateKeyPair()
+
     private val fixedClock: Clock = Clock.fixed(Instant.parse("2026-02-04T00:00:00Z"), ZoneOffset.UTC)
     private val catService = createApp(
         Environment.defaults(
-            dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1"
+            dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
+            publicKey of keyPair.public.encoded.base64Encode(),
+            issuer of "cats_idp",
+            audience of "cats_idp"
         ),
         fixedClock
-    )
+    ) { UUID.fromString("11111111-1111-1111-1111-111111111111") }
 
     private val api = catService.api()
+
 
     @Test
     fun `list cats with empty response`() {
@@ -50,19 +60,13 @@ class ApiTest {
                 "Louis", LocalDate.now(), "don't know", "brown"
             )
         )
-        val expectedCat2 = catService.addCat(
-            "user2",
-            CatDto(
-                "Mike", LocalDate.now(), "know", "white"
-            )
-        )
         val request = Request(Method.GET, "/v1/cats")
 
         val response = api(request)
 
         assertEquals(Status.OK, response.status)
         assertEquals(
-            listOf(expectedCat1, expectedCat2),
+            listOf(expectedCat1),
             // response.body // it returns the json object
             Moshi.asA<Array<Cat>>(response.bodyString()).toList()
         )

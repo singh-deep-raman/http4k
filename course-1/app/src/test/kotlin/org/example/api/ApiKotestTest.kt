@@ -1,14 +1,16 @@
 package org.example.api
 
-import app.cash.sqldelight.driver.jdbc.asJdbcDriver
-import com.auth0.jwt.JWT
 import io.kotest.matchers.be
-import org.example.Database
+import org.example.audience
+import org.example.createApp
+import org.example.dbUrl
+import org.example.issuer
 import org.example.model.Cat
 import org.example.model.CatDto
-import org.example.repository.CatsRepository
-import org.example.service.CatService
+import org.example.publicKey
 import org.h2.jdbcx.JdbcDataSource
+import org.http4k.base64Encode
+import org.http4k.config.Environment
 import org.http4k.core.*
 import org.http4k.format.Moshi.auto
 import org.http4k.kotest.shouldHaveBody
@@ -18,6 +20,7 @@ import org.http4k.testing.JsonApprovalTest
 import org.http4k.testing.assertApproved
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.security.KeyPairGenerator
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -30,15 +33,9 @@ import java.util.*
 @ExtendWith(JsonApprovalTest::class)
 class ApiKotestTest {
 
-    // we are creating a H2 database
-    // we need to give the database connection url, for jdbc url looks like below
-    // jdbc: it is a standard prefix
-    // h2: tells which database it is
-    // mem: tells it is in memory
-    // then a random database uuid to avoid test collisions
-    private val dataSource = JdbcDataSource().apply {
-        setUrl("jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1")
-    }
+    private val keyPair = KeyPairGenerator.getInstance("RSA")
+        .apply { this.initialize(2048) }
+        .generateKeyPair()
 
     /**
      * 🔹 DB_CLOSE_DELAY=-1
@@ -54,18 +51,15 @@ class ApiKotestTest {
      * The DB won’t disappear between transactions
      */
 
-    // Database() SQLDelight generator code
-    // Our CatsRepository() uses SqlDelight for database operations, but how will it know to connect to H2 database?
-    // Using this code, we are telling SqlLight to use our JDBC Driver wrapped inside the datasource
-    private val database = dataSource.asJdbcDriver()
-        .also { Database.Schema.create(it) } // without this, database schema won't be created
-        .let { Database(it) }
-
-    private val catService = CatService(
-        CatsRepository(database.catsQueries),
+    private val catService = createApp(
+        Environment.defaults(
+            dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
+            publicKey of keyPair.public.encoded.base64Encode(),
+            issuer of "cats_idp",
+            audience of "cats_idp"
+        ),
         Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC")),
-        { UUID.fromString("11111111-1111-1111-1111-111111111111") },
-        jwtVerifier = JWT.require(null).build()
+        { UUID.fromString("11111111-1111-1111-1111-111111111111") }
     )
 
     private val catApi = catService.api()

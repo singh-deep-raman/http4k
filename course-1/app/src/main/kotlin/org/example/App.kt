@@ -24,10 +24,11 @@ import java.security.KeyFactory
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.time.Clock
+import java.util.UUID
 
 val dbUrl = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 val dbUser = EnvironmentKey.string().optional("JDBC_DATABASE_USERNAME")
-val dbPassword = EnvironmentKey.secret().required("JDBC_DATABASE_PASSWORD")
+val dbPassword = EnvironmentKey.secret().optional("JDBC_DATABASE_PASSWORD")
 
 // JWT related environment variables
 val publicKey = EnvironmentKey.base64().required("PUBLIC_KEY")
@@ -36,13 +37,14 @@ val audience = EnvironmentKey.string().required("AUDIENCE")
 
 fun createApp(
     env: Environment,
-    clock: Clock
+    clock: Clock,
+    uuidGenerator: () -> UUID
 ): CatService {
 
     val dbConfig = HikariConfig().apply {
         jdbcUrl = env[dbUrl]
         username = env[dbUser]
-        password = env[dbPassword]?.use { it }
+        password = env[dbPassword].use { it.toString() }
     }
 
     val datasource = HikariDataSource(dbConfig)
@@ -56,6 +58,7 @@ fun createApp(
     return CatService(
         CatsRepository(datasource.catsQueries),
         clock,
+        uuidProvider = uuidGenerator,
         jwtVerifier = getJwtVerifier(env)
     )
 
@@ -72,7 +75,7 @@ fun getJwtVerifier(env: Environment): JWTVerifier {
 }
 
 fun main() {
-    createApp(Environment.ENV, Clock.systemUTC())
+    createApp(Environment.ENV, Clock.systemUTC()) { UUID.fromString("11111111-1111-1111-1111-111111111111") }
         .api()
         .asServer(Jetty(8080))
         .start()
