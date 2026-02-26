@@ -1,31 +1,31 @@
 package org.example.api
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.matchers.be
-import org.example.audience
-import org.example.createApp
-import org.example.dbUrl
-import org.example.issuer
+import org.example.*
 import org.example.model.Cat
 import org.example.model.CatDto
-import org.example.publicKey
-import org.h2.jdbcx.JdbcDataSource
 import org.http4k.base64Encode
 import org.http4k.config.Environment
 import org.http4k.core.*
 import org.http4k.format.Moshi.auto
 import org.http4k.kotest.shouldHaveBody
 import org.http4k.kotest.shouldHaveStatus
+import org.http4k.lens.bearerAuth
 import org.http4k.testing.Approver
 import org.http4k.testing.JsonApprovalTest
 import org.http4k.testing.assertApproved
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.security.KeyPairGenerator
+import java.security.interfaces.RSAPrivateKey
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
+
 
 // Use Testing: Approval to compare the responses of the api, we can't rely on lens because the data might be in bytes,
 // but when we use the lens to create a model/pojo, we won't know, so we need to do the JSON comparison here
@@ -56,7 +56,7 @@ class ApiKotestTest {
             dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
             publicKey of keyPair.public.encoded.base64Encode(),
             issuer of "cats_idp",
-            audience of "cats_idp"
+            audience of "cats_app"
         ),
         Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC")),
         { UUID.fromString("11111111-1111-1111-1111-111111111111") }
@@ -87,7 +87,6 @@ class ApiKotestTest {
         Request(Method.GET, "/v1/cats/${UUID.randomUUID()}")
             .let(catApi)
             .shouldHaveStatus(Status.NOT_FOUND)
-
     }
 
     @Test
@@ -115,6 +114,7 @@ class ApiKotestTest {
                     "Test Louis", LocalDate.parse("2026-01-01"), "test-breed", "test-color"
                 )
             )
+            .bearerAuth(createToken("userId1"))
             .let(catApi)
 
         // it is going to create a JSON file with test-class name and test name.ACTUAL in test/resources folder
@@ -131,7 +131,41 @@ class ApiKotestTest {
             )
         )
         Request(Method.DELETE, "/v1/cats/${expectedCat.id}")
+            .bearerAuth(createToken("user3"))
             .let(catApi)
             .shouldHaveStatus(Status.NO_CONTENT)
+    }
+
+    @Test
+    fun `should return Unauthorised for api without token`() {
+        val cat = catService.addCat(
+            "user3",
+            CatDto(
+                "Louis", LocalDate.now(), "don't know", "brown"
+            )
+        )
+
+        Request(Method.DELETE, "/v1/cats/${cat.id}")
+            .bearerAuth(createToken("user2 "))
+            .let(catApi)
+            .shouldHaveStatus(Status.FORBIDDEN)
+
+    }
+
+    @Test
+    fun `should return Forbidden for api for deleting a cat of another user`() {
+        Request(Method.DELETE, "/v1/cats/${UUID.randomUUID()}")
+            .let(catApi)
+            .shouldHaveStatus(Status.UNAUTHORIZED)
+
+    }
+
+    fun createToken(userId: String): String {
+        val algorithm: Algorithm = Algorithm.RSA256(null, keyPair.private as RSAPrivateKey)
+        return JWT.create()
+            .withSubject(userId)
+            .withIssuer("cats_idp")
+            .withAudience("cats_app")
+            .sign(algorithm)
     }
 }
