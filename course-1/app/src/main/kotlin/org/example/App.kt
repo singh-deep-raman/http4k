@@ -12,19 +12,22 @@ import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
 import org.example.repository.CatsRepository
 import org.example.service.CatService
+import org.example.web.webApp
 import org.http4k.base64DecodedArray
 import org.http4k.config.Environment
 import org.http4k.config.EnvironmentKey
 import org.http4k.lens.base64
 import org.http4k.lens.secret
 import org.http4k.lens.string
+import org.http4k.lens.uri
+import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import java.security.KeyFactory
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.time.Clock
-import java.util.UUID
+import java.util.*
 
 val dbUrl = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 val dbUser = EnvironmentKey.string().optional("JDBC_DATABASE_USERNAME")
@@ -34,11 +37,12 @@ val dbPassword = EnvironmentKey.secret().optional("JDBC_DATABASE_PASSWORD")
 val publicKey = EnvironmentKey.base64().required("PUBLIC_KEY")
 val issuer = EnvironmentKey.string().required("ISSUER")
 val audience = EnvironmentKey.string().required("AUDIENCE")
+val redirectUri = EnvironmentKey.uri().required("REDIRECT_URI")
 
 fun createApp(
     env: Environment,
     clock: Clock,
-    uuidGenerator: () -> UUID
+    uuidGenerator: () -> UUID = { UUID.randomUUID() }
 ): CatService {
 
     val dbConfig = HikariConfig().apply {
@@ -75,8 +79,15 @@ fun getJwtVerifier(env: Environment): JWTVerifier {
 }
 
 fun main() {
-    createApp(Environment.ENV, Clock.systemUTC()) { UUID.fromString("11111111-1111-1111-1111-111111111111") }
-        .api()
+    val env = Environment.ENV
+    val catsApp = createApp(env, Clock.systemUTC()).api()
+
+    val webApp = webApp(
+        env[audience],
+        env[redirectUri]
+    )
+
+    routes(webApp, catsApp)
         .asServer(Jetty(8080))
         .start()
 }

@@ -16,6 +16,7 @@ import org.http4k.format.Moshi.auto
 import org.http4k.lens.Path
 import org.http4k.lens.RequestKey
 import org.http4k.lens.uuid
+import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
@@ -26,7 +27,8 @@ val catIdLens = Path.uuid().of("catIdUsingLens")
 val catLens = Body.auto<Cat>().toLens()
 val catBodyLens = Body.auto<CatDto>().toLens()
 
-fun CatService.api(): HttpHandler {
+// HttpHandler talks about one route, RoutingHttpHandler talks about multiple routes and which route is tied to which handler
+fun CatService.api(): RoutingHttpHandler {
 
     val userIdLens = RequestKey.required<String>("userId")
 
