@@ -4,6 +4,10 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.matchers.be
 import org.example.*
+import org.example.config.audience
+import org.example.config.dbUrl
+import org.example.config.issuer
+import org.example.config.publicKey
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.http4k.base64Encode

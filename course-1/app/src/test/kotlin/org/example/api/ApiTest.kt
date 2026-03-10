@@ -1,6 +1,10 @@
 package org.example.api
 
 import org.example.*
+import org.example.config.audience
+import org.example.config.dbUrl
+import org.example.config.issuer
+import org.example.config.publicKey
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.http4k.base64Encode
@@ -9,7 +13,6 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.http4k.format.Moshi
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.security.KeyPairGenerator

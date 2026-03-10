@@ -9,6 +9,8 @@ h2-db = "2.4.240"
 hikari = "7.0.2"
 mysql-driver = "8.0.33"
 auth0 = "4.5.1"
+mariadb-driver = "3.3.3"
+
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -23,6 +25,7 @@ sqldelight-jdbc = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "s
 h2-db = { module = "com.h2database:h2", version.ref = "h2-db" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 mysql-driver = { module = "mysql:mysql-connector-java", version.ref = "mysql-driver"}
+mariadb-driver = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb-driver"}
 auth0 = { module = "com.auth0:java-jwt", version.ref="auth0"}
 
 [plugins]
