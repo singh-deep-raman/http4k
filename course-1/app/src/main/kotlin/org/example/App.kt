@@ -40,7 +40,7 @@ fun createApp(
     val dbConfig = HikariConfig().apply {
         jdbcUrl = env[dbUrl]
         username = env[dbUser]
-        password = env[dbPassword].use { it.toString() }
+        password = env[dbPassword].use { it }
     }
 
     val datasource = HikariDataSource(dbConfig)
