@@ -5,6 +5,7 @@ import org.http4k.core.Method
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.Uri
+import org.http4k.core.body.form
 import org.http4k.lens.contentType
 import org.http4k.routing.bind
 import org.http4k.routing.routes
@@ -35,5 +36,10 @@ fun webApp(clientId: String, redirectUri: Uri) = routes(
                   <body>
                 </html>
             """.trimIndent())
+    },
+
+    "redirect" bind Method.POST to { request ->
+        val form = request.form("credential") ?: "error"
+        Response(Status.OK).body(form)
     }
 )

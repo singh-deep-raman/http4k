@@ -4,9 +4,12 @@
 package org.example
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.auth0.jwk.JwkProvider
+import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.RSAKeyProvider
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
@@ -15,6 +18,7 @@ import org.example.config.dbPassword
 import org.example.config.dbUrl
 import org.example.config.dbUser
 import org.example.config.issuer
+import org.example.config.jwksUri
 import org.example.config.publicKey
 import org.example.config.redirectUri
 import org.example.repository.CatsRepository
@@ -25,11 +29,15 @@ import org.http4k.config.Environment
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
+import java.net.URI
+import java.net.URL
 import java.security.KeyFactory
+import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.time.Clock
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 fun createApp(
     env: Environment,
@@ -61,9 +69,28 @@ fun createApp(
 }
 
 fun getJwtVerifier(env: Environment): JWTVerifier {
-    val keySpec = X509EncodedKeySpec(env[publicKey].base64DecodedArray())
-    val rsaPublicKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
-    val algorithm: Algorithm = Algorithm.RSA256(rsaPublicKey as RSAPublicKey, null)
+    val algorithm = env[publicKey]?.let { publicKey ->
+        val keySpec = X509EncodedKeySpec(env[publicKey]?.base64DecodedArray())
+        val rsaPublicKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
+        Algorithm.RSA256(rsaPublicKey as RSAPublicKey, null)
+    } ?: run {
+        val url = URI.create(env[jwksUri].toString()).toURL()
+        val provider = JwkProviderBuilder(url)
+            .cached(10, 24, TimeUnit.HOURS)
+            .rateLimited(10, 1, TimeUnit.MINUTES)
+            .build()
+
+        val rsaKeyProvider = object : RSAKeyProvider {
+            override fun getPublicKeyById(keyId: String?) = provider.get(keyId).publicKey as RSAPublicKey
+
+            override fun getPrivateKey() = null
+            override fun getPrivateKeyId() = null
+        }
+
+        Algorithm.RSA256(rsaKeyProvider)
+    }
+
+
     return JWT.require(algorithm) // specify any specific claim validations
         .withIssuer(env[issuer])
         .withAudience(env[audience] )
