@@ -12,7 +12,8 @@ val dbUser = EnvironmentKey.string().required("JDBC_DATABASE_USERNAME")
 val dbPassword = EnvironmentKey.secret().required("JDBC_DATABASE_PASSWORD")
 
 // JWT related environment variables
-val publicKey = EnvironmentKey.base64().required("PUBLIC_KEY")
+val publicKey = EnvironmentKey.base64().optional("PUBLIC_KEY")
+val jwksUri = EnvironmentKey.uri().required("JWKS_URI")
 val issuer = EnvironmentKey.string().required("ISSUER")
 val audience = EnvironmentKey.string().required("AUDIENCE")
 val redirectUri = EnvironmentKey.uri().required("REDIRECT_URI")

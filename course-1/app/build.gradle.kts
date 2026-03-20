@@ -34,6 +34,7 @@ dependencies {
     runtimeOnly(libs.mysql.driver) // we need this driver so that Hikari our datasource can talk to actual mariadb using this driver
     runtimeOnly(libs.mariadb.driver)
     implementation(libs.auth0)
+    implementation(libs.jwks.rsa)
 
     testImplementation(libs.http4k.kotest)
     testImplementation(libs.http4k.testing.approval)
