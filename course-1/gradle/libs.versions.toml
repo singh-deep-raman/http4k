@@ -29,6 +29,7 @@ mysql-driver = { module = "mysql:mysql-connector-java", version.ref = "mysql-dri
 mariadb-driver = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb-driver"}
 auth0 = { module = "com.auth0:java-jwt", version.ref="auth0"}
 jwks-rsa = { module = "com.auth0:jwks-rsa", version.ref="jwks-rsa"}
+openapi = { module = "org.http4k:http4k-api-openapi"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.21" }

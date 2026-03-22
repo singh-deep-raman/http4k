@@ -35,6 +35,7 @@ dependencies {
     runtimeOnly(libs.mariadb.driver)
     implementation(libs.auth0)
     implementation(libs.jwks.rsa)
+    implementation(libs.openapi)
 
     testImplementation(libs.http4k.kotest)
     testImplementation(libs.http4k.testing.approval)
