@@ -48,7 +48,7 @@ fun createApp(
     val dbConfig = HikariConfig().apply {
         jdbcUrl = env[dbUrl]
         username = env[dbUser]
-        password = env[dbPassword].use { it }
+        password = env[dbPassword].use { it.toString() }
     }
 
     val datasource = HikariDataSource(dbConfig)
@@ -70,7 +70,7 @@ fun createApp(
 
 fun getJwtVerifier(env: Environment): JWTVerifier {
     val algorithm = env[publicKey]?.let { publicKey ->
-        val keySpec = X509EncodedKeySpec(env[publicKey]?.base64DecodedArray())
+        val keySpec = X509EncodedKeySpec(publicKey.base64DecodedArray())
         val rsaPublicKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
         Algorithm.RSA256(rsaPublicKey as RSAPublicKey, null)
     } ?: run {

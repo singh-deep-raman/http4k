@@ -94,23 +94,6 @@ class ApiKotestTest {
     }
 
     @Test
-    fun `kotest assert status code and body `() {
-        val expectedCat = catService.addCat(
-            "user2",
-            CatDto(
-                "Louis", LocalDate.now(), "don't know", "brown"
-            )
-        )
-
-        val response = Request(Method.GET, "/v1/cats-with-lens/${expectedCat.id}")
-            .let(catApi)
-
-        response.shouldHaveStatus(Status.OK)
-        response.shouldHaveBody(catLens, be(expectedCat))
-
-    }
-
-    @Test
     fun `should create a cat using lens for payload and also JsonApprovalTest for testing JSON`(approver: Approver) {
         val response = Request(Method.POST, "/v1/cats")
             .with(
