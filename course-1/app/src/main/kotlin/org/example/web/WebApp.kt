@@ -13,7 +13,7 @@ import org.http4k.routing.routes
 // get the content for this webpage https://developers.google.com/identity/gsi/web/guides/display-button
 // you need to create or setup an app on your gcp console project so that you get a clientId
 fun webApp(clientId: String, redirectUri: Uri) = routes(
-    "" bind Method.GET to {
+    "/ui" bind Method.GET to {
         Response(Status.OK)
             .contentType(ContentType.TEXT_HTML)
             .body("""

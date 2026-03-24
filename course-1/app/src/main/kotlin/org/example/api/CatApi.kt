@@ -8,6 +8,9 @@ import org.example.service.CatService
 import org.http4k.contract.contract
 import org.http4k.contract.div
 import org.http4k.contract.meta
+import org.http4k.contract.openapi.ApiInfo
+import org.http4k.contract.openapi.v3.OpenApi3
+import org.http4k.contract.openapi.v3.OpenApi3ApiRenderer
 import org.http4k.core.*
 import org.http4k.format.Moshi
 import org.http4k.format.Moshi.auto
@@ -31,6 +34,14 @@ fun CatService.api(): RoutingHttpHandler {
 
     // contract helps you return the same RoutingHttpHandler with swagger documentation as well
     return contract {
+        // although you have specified swagger docs for all the endpoints, you need to render that using a renderer
+        // default openapi renderer is jackson, but we can use Moshi using following code
+        descriptionPath = "openapi.json"
+        renderer = OpenApi3(
+            apiInfo = ApiInfo("Cats API", "v1"),
+             apiRenderer = OpenApi3ApiRenderer(Moshi), // this is a fallback, but it has some limitations in contrast to Jackson, like showing object-124** instead of model name, which is not user/developer friendly
+            json = Moshi
+        )
 
         routes += "/v1/cats" meta {
             operationId = "v1ListCats"

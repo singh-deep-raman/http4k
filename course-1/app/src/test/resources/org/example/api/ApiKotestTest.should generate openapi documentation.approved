@@ -1,0 +1,287 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cats API",
+    "version": "v1",
+    "description": ""
+  },
+  "tags": [
+  ],
+  "paths": {
+    "/v1/cats": {
+      "get": {
+        "summary": "List Cats",
+        "tags": [
+          ""
+        ],
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "d0b73da0-0363-4c9f-ba97-e4a4274654ae",
+                    "userId": "admin",
+                    "createdAt": "2020-04-04T00:00:00Z",
+                    "name": "Cat Name",
+                    "dateOfBirth": "2022-01-01",
+                    "breed": "Breed name",
+                    "color": "brown greyish"
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/object730820803"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+        ],
+        "operationId": "v1ListCats",
+        "deprecated": false
+      },
+      "post": {
+        "summary": "Create Cat",
+        "tags": [
+          ""
+        ],
+        "parameters": [
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Cat Name",
+                "dateOfBirth": "2022-01-01",
+                "breed": "Breed name",
+                "color": "brown greyish"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/object-954917637"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "d0b73da0-0363-4c9f-ba97-e4a4274654ae",
+                  "userId": "admin",
+                  "createdAt": "2020-04-04T00:00:00Z",
+                  "name": "Cat Name",
+                  "dateOfBirth": "2022-01-01",
+                  "breed": "Breed name",
+                  "color": "brown greyish"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/object730820803"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "bearer token required",
+            "content": {
+            }
+          }
+        },
+        "security": [
+          {
+            "googleAuth": [
+            ]
+          }
+        ],
+        "operationId": "v1CreateCat",
+        "deprecated": false
+      }
+    },
+    "/v1/cats/{catIdUsingLens}": {
+      "delete": {
+        "summary": "Delete Cat",
+        "tags": [
+          ""
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "catIdUsingLens",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "d0b73da0-0363-4c9f-ba97-e4a4274654ae",
+                  "userId": "admin",
+                  "createdAt": "2020-04-04T00:00:00Z",
+                  "name": "Cat Name",
+                  "dateOfBirth": "2022-01-01",
+                  "breed": "Breed name",
+                  "color": "brown greyish"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/object730820803"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "bearer token required",
+            "content": {
+            }
+          },
+          "403": {
+            "description": "don't have permission to delete cat",
+            "content": {
+            }
+          }
+        },
+        "security": [
+          {
+            "googleAuth": [
+            ]
+          }
+        ],
+        "operationId": "v1DeleteCat",
+        "deprecated": false
+      },
+      "get": {
+        "summary": "Get Cat",
+        "tags": [
+          ""
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "catIdUsingLens",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "d0b73da0-0363-4c9f-ba97-e4a4274654ae",
+                  "userId": "admin",
+                  "createdAt": "2020-04-04T00:00:00Z",
+                  "name": "Cat Name",
+                  "dateOfBirth": "2022-01-01",
+                  "breed": "Breed name",
+                  "color": "brown greyish"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/object730820803"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "cat not found",
+            "content": {
+            }
+          }
+        },
+        "security": [
+        ],
+        "operationId": "v1GetCat",
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "object730820803": {
+        "type": "object",
+        "required": [
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "d0b73da0-0363-4c9f-ba97-e4a4274654ae"
+          },
+          "userId": {
+            "type": "string",
+            "example": "admin"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2020-04-04T00:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Cat Name"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "2022-01-01"
+          },
+          "breed": {
+            "type": "string",
+            "example": "Breed name"
+          },
+          "color": {
+            "type": "string",
+            "example": "brown greyish"
+          }
+        }
+      },
+      "object-954917637": {
+        "type": "object",
+        "required": [
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Cat Name"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "2022-01-01"
+          },
+          "breed": {
+            "type": "string",
+            "example": "Breed name"
+          },
+          "color": {
+            "type": "string",
+            "example": "brown greyish"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "googleAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": ""
+    }
+  ]
+}

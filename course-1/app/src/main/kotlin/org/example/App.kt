@@ -4,7 +4,6 @@
 package org.example
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
-import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
@@ -13,26 +12,18 @@ import com.auth0.jwt.interfaces.RSAKeyProvider
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
-import org.example.config.audience
-import org.example.config.dbPassword
-import org.example.config.dbUrl
-import org.example.config.dbUser
-import org.example.config.issuer
-import org.example.config.jwksUri
-import org.example.config.publicKey
-import org.example.config.redirectUri
+import org.example.config.*
 import org.example.repository.CatsRepository
 import org.example.service.CatService
 import org.example.web.webApp
 import org.http4k.base64DecodedArray
 import org.http4k.config.Environment
+import org.http4k.contract.ui.swaggerUiLite
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import java.net.URI
-import java.net.URL
 import java.security.KeyFactory
-import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.time.Clock
@@ -48,7 +39,7 @@ fun createApp(
     val dbConfig = HikariConfig().apply {
         jdbcUrl = env[dbUrl]
         username = env[dbUser]
-        password = env[dbPassword].use { it.toString() }
+        password = env[dbPassword].use { it }
     }
 
     val datasource = HikariDataSource(dbConfig)
@@ -101,12 +92,19 @@ fun main() {
     val env = Environment.ENV
     val catsApp = createApp(env, Clock.systemUTC()).api()
 
-    val webApp = webApp(
+    val webApp =  webApp(
         env[audience],
         env[redirectUri]
     )
 
-    routes(webApp, catsApp)
+    // http4k comes with 2 options for doc ui (swaggerUiLite, redocLite)
+    // swaggerUI needs to be on root path, so we need to change the path of our webApp
+    val swaggerUi = swaggerUiLite {
+        pageTitle = "Cats API Swagger UI "
+        url = "openapi.json"
+    }
+
+    routes(webApp, catsApp, swaggerUi )
         .asServer(Jetty(8080))
         .start()
 }

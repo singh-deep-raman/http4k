@@ -147,6 +147,13 @@ class ApiKotestTest {
 
     }
 
+    @Test
+    fun `should generate openapi documentation`(approver: Approver) {
+         Request(Method.GET, "openapi.json")
+             .let(catApi)
+             .also { approver.assertApproved(it, Status.OK) }
+     }
+
     fun createToken(userId: String): String {
         val algorithm: Algorithm = Algorithm.RSA256(null, keyPair.private as RSAPrivateKey)
         return JWT.create()

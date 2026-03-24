@@ -7,9 +7,9 @@ import org.http4k.lens.string
 import org.http4k.lens.uri
 
 // DB environment variables
-val dbUrl = EnvironmentKey.string().optional("JDBC_DATABASE_URL")
-val dbUser = EnvironmentKey.string().optional("JDBC_DATABASE_USERNAME")
-val dbPassword = EnvironmentKey.secret().optional("JDBC_DATABASE_PASSWORD")
+val dbUrl = EnvironmentKey.string().required("JDBC_DATABASE_URL")
+val dbUser = EnvironmentKey.string().required("JDBC_DATABASE_USERNAME")
+val dbPassword = EnvironmentKey.secret().required("JDBC_DATABASE_PASSWORD")
 
 // JWT related environment variables
 val publicKey = EnvironmentKey.base64().optional("PUBLIC_KEY")
