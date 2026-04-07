@@ -98,7 +98,7 @@ fun main() {
     )
 
     // http4k comes with 2 options for doc ui (swaggerUiLite, redocLite)
-    // swaggerUI needs to be on root path, so we need to change the path of our webApp
+    // swaggerUI needs to be on root path, so we need to change the path of our webApp, without root path it doesn't work
     val swaggerUi = swaggerUiLite {
         pageTitle = "Cats API Swagger UI "
         url = "openapi.json"

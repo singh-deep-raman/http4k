@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 val catSample = Cat(
-    id = UUID.randomUUID(),
+    id = UUID.fromString("133a6c37-2ddd-4eea-ae10-42bcfa00af42"),
     userId = "admin",
     name = "Cat Name",
     createdAt = Instant.parse("2020-04-04T00:00:00Z"),

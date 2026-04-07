@@ -9,8 +9,8 @@ import org.http4k.contract.contract
 import org.http4k.contract.div
 import org.http4k.contract.meta
 import org.http4k.contract.openapi.ApiInfo
+import org.http4k.contract.openapi.OpenAPIJackson
 import org.http4k.contract.openapi.v3.OpenApi3
-import org.http4k.contract.openapi.v3.OpenApi3ApiRenderer
 import org.http4k.core.*
 import org.http4k.format.Moshi
 import org.http4k.format.Moshi.auto
@@ -39,8 +39,8 @@ fun CatService.api(): RoutingHttpHandler {
         descriptionPath = "openapi.json"
         renderer = OpenApi3(
             apiInfo = ApiInfo("Cats API", "v1"),
-             apiRenderer = OpenApi3ApiRenderer(Moshi), // this is a fallback, but it has some limitations in contrast to Jackson, like showing object-124** instead of model name, which is not user/developer friendly
-            json = Moshi
+//            json = Jackson // using Jackson will not serialize null properties, so it is not advisable to use it if your DTO has nullable properties
+            json = OpenAPIJackson
         )
 
         routes += "/v1/cats" meta {

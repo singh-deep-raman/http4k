@@ -5,13 +5,16 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.matchers.be
 import org.example.*
 import org.example.config.audience
+import org.example.config.dbPassword
 import org.example.config.dbUrl
+import org.example.config.dbUser
 import org.example.config.issuer
 import org.example.config.publicKey
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.http4k.base64Encode
 import org.http4k.config.Environment
+import org.http4k.config.Secret
 import org.http4k.core.*
 import org.http4k.format.Moshi.auto
 import org.http4k.kotest.shouldHaveBody
@@ -60,7 +63,9 @@ class ApiKotestTest {
             dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
             publicKey of keyPair.public.encoded.base64Encode(),
             issuer of "cats_idp",
-            audience of "cats_app"
+            audience of "cats_app",
+            dbUser of "sa",
+            dbPassword of Secret("randomPassword")
         ),
         Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC")),
         { UUID.fromString("11111111-1111-1111-1111-111111111111") }
