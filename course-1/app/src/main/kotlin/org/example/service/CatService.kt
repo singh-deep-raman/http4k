@@ -2,6 +2,7 @@ package org.example.service
 
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.exceptions.JWTVerificationException
+import org.example.client.CatNamesClient
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.example.repository.CatsRepository
@@ -14,7 +15,8 @@ class CatService(
     private val catsRepository: CatsRepository,
     private val clock: Clock,
     private val uuidProvider: () -> UUID = { UUID.randomUUID() },
-    private val jwtVerifier: JWTVerifier
+    private val jwtVerifier: JWTVerifier,
+    private val catNamesClient: CatNamesClient
 ) {
 
     fun getCat(id: UUID): Cat? {
@@ -38,7 +40,7 @@ class CatService(
             id = uuidProvider(),
             userId = userId,
             createdAt = clock.instant(),
-            name = catDto.name,
+            name = catDto.name ?: catNamesClient.getCatNames().first(),
             dateOfBirth = catDto.dateOfBirth,
             breed = catDto.breed,
             color = catDto.color,

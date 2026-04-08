@@ -1,22 +1,19 @@
 {
   "info": {
     "title": "Cats API",
-    "version": "v1",
-    "description": null
+    "version": "v1"
   },
   "tags": [
   ],
   "servers": [
     {
-      "url": "/",
-      "description": null
+      "url": "/"
     }
   ],
   "paths": {
     "/v1/cats": {
       "get": {
         "summary": "List Cats",
-        "description": null,
         "tags": [
           ""
         ],
@@ -53,7 +50,6 @@
                       "color": "brown greyish"
                     }
                   ],
-                  "format": null,
                   "type": "array",
                   "nullable": false
                 }
@@ -64,12 +60,10 @@
         "security": [
         ],
         "operationId": "v1ListCats",
-        "deprecated": false,
-        "callbacks": null
+        "deprecated": false
       },
       "post": {
         "summary": "Create Cat",
-        "description": null,
         "tags": [
           ""
         ],
@@ -85,9 +79,7 @@
                 "color": "brown greyish"
               },
               "schema": {
-                "$ref": "#/components/schemas/CatDto",
-                "example": null,
-                "format": null
+                "$ref": "#/components/schemas/CatDto"
               }
             }
           },
@@ -108,9 +100,7 @@
                   "color": "brown greyish"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/Cat",
-                  "example": null,
-                  "format": null
+                  "$ref": "#/components/schemas/Cat"
                 }
               }
             }
@@ -128,14 +118,12 @@
           }
         ],
         "operationId": "v1CreateCat",
-        "deprecated": false,
-        "callbacks": null
+        "deprecated": false
       }
     },
     "/v1/cats/{catIdUsingLens}": {
       "delete": {
         "summary": "Delete Cat",
-        "description": null,
         "tags": [
           ""
         ],
@@ -146,8 +134,7 @@
             },
             "in": "path",
             "name": "catIdUsingLens",
-            "required": true,
-            "description": null
+            "required": true
           }
         ],
         "responses": {
@@ -165,9 +152,7 @@
                   "color": "brown greyish"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/Cat",
-                  "example": null,
-                  "format": null
+                  "$ref": "#/components/schemas/Cat"
                 }
               }
             }
@@ -190,12 +175,10 @@
           }
         ],
         "operationId": "v1DeleteCat",
-        "deprecated": false,
-        "callbacks": null
+        "deprecated": false
       },
       "get": {
         "summary": "Get Cat",
-        "description": null,
         "tags": [
           ""
         ],
@@ -206,8 +189,7 @@
             },
             "in": "path",
             "name": "catIdUsingLens",
-            "required": true,
-            "description": null
+            "required": true
           }
         ],
         "responses": {
@@ -225,9 +207,7 @@
                   "color": "brown greyish"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/Cat",
-                  "example": null,
-                  "format": null
+                  "$ref": "#/components/schemas/Cat"
                 }
               }
             }
@@ -241,12 +221,10 @@
         "security": [
         ],
         "operationId": "v1GetCat",
-        "deprecated": false,
-        "callbacks": null
+        "deprecated": false
       }
     }
   },
-  "webhooks": null,
   "components": {
     "schemas": {
       "Cat": {
@@ -259,7 +237,6 @@
           },
           "userId": {
             "example": "admin",
-            "format": null,
             "type": "string",
             "nullable": false
           },
@@ -271,7 +248,6 @@
           },
           "name": {
             "example": "Cat Name",
-            "format": null,
             "type": "string",
             "nullable": false
           },
@@ -283,13 +259,11 @@
           },
           "breed": {
             "example": "Breed name",
-            "format": null,
             "type": "string",
             "nullable": false
           },
           "color": {
             "example": "brown greyish",
-            "format": null,
             "type": "string",
             "nullable": false
           }
@@ -303,7 +277,6 @@
           "breed": "Breed name",
           "color": "brown greyish"
         },
-        "format": null,
         "type": "object",
         "required": [
           "breed",
@@ -319,9 +292,8 @@
         "properties": {
           "name": {
             "example": "Cat Name",
-            "format": null,
             "type": "string",
-            "nullable": false
+            "nullable": true
           },
           "dateOfBirth": {
             "example": "2022-01-01",
@@ -331,13 +303,11 @@
           },
           "breed": {
             "example": "Breed name",
-            "format": null,
             "type": "string",
             "nullable": false
           },
           "color": {
             "example": "brown greyish",
-            "format": null,
             "type": "string",
             "nullable": false
           }
@@ -348,13 +318,11 @@
           "breed": "Breed name",
           "color": "brown greyish"
         },
-        "format": null,
         "type": "object",
         "required": [
           "breed",
           "color",
-          "dateOfBirth",
-          "name"
+          "dateOfBirth"
         ]
       }
     },

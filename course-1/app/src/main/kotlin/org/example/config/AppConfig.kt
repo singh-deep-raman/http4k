@@ -1,6 +1,7 @@
 package org.example.config
 
 import org.http4k.config.EnvironmentKey
+import org.http4k.core.Uri
 import org.http4k.lens.base64
 import org.http4k.lens.secret
 import org.http4k.lens.string
@@ -17,3 +18,6 @@ val jwksUri = EnvironmentKey.uri().required("JWKS_URI")
 val issuer = EnvironmentKey.string().required("ISSUER")
 val audience = EnvironmentKey.string().required("AUDIENCE")
 val redirectUri = EnvironmentKey.uri().required("REDIRECT_URI")
+
+// Other
+val catNamesApiHost = EnvironmentKey.uri().defaulted("CAT_NAMES_API_BASE_URL", Uri.of("https://tools.estevecastells.com"))

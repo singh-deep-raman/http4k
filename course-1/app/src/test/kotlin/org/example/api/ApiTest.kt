@@ -2,6 +2,7 @@ package org.example.api
 
 import org.example.*
 import org.example.config.audience
+import org.example.config.catNamesApiHost
 import org.example.config.dbUrl
 import org.example.config.issuer
 import org.example.config.publicKey
@@ -12,7 +13,9 @@ import org.http4k.config.Environment
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
+import org.http4k.core.Uri
 import org.http4k.format.Moshi
+import org.http4k.routing.reverseProxy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.security.KeyPairGenerator
@@ -21,11 +24,14 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.*
+import kotlin.random.Random
 
 // it is by far the easiest to test http4k HttpHandler because it is just a function
 // we need not to start a server on the localhost to test the api, so everything is in the memory
 // that is what makes http4k testing so easy and it will be like a unit test only
 class ApiTest {
+
+    private val CAT_NAMES_API_HOST = Uri.of("http://cats.test")
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { this.initialize(2048) }
@@ -37,10 +43,16 @@ class ApiTest {
             dbUrl of "jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
             publicKey of keyPair.public.encoded.base64Encode(),
             issuer of "cats_idp",
-            audience of "cats_idp"
+            audience of "cats_idp",
+            catNamesApiHost of CAT_NAMES_API_HOST
         ),
-        fixedClock
-    ) { UUID.fromString("11111111-1111-1111-1111-111111111111") }
+        fixedClock,
+        { UUID.fromString("11111111-1111-1111-1111-111111111111") },
+        // we can't inject OkHttp() or JavaHttpClient() because we don't want our tests to use real api but a mock, for this purpose we will use reverseProxy() method
+        reverseProxy( // go inside reverseProxy() method to understand it better
+            CAT_NAMES_API_HOST.host to fakeCatNames(Random(10)) // giving Random(seed) means it will generate same random number every time, means sequence is deterministic
+        )
+    )
 
     private val api = catService.api()
 

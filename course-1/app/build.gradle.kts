@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.auth0)
     implementation(libs.jwks.rsa)
     implementation(libs.openapi)
+    implementation(libs.http4k.okhttp)
 
     testImplementation(libs.http4k.kotest)
     testImplementation(libs.http4k.testing.approval)

@@ -12,13 +12,24 @@ import com.auth0.jwt.interfaces.RSAKeyProvider
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.example.api.api
-import org.example.config.*
+import org.example.client.CatNamesClient
+import org.example.config.audience
+import org.example.config.catNamesApiHost
+import org.example.config.dbPassword
+import org.example.config.dbUrl
+import org.example.config.dbUser
+import org.example.config.issuer
+import org.example.config.jwksUri
+import org.example.config.publicKey
+import org.example.config.redirectUri
 import org.example.repository.CatsRepository
 import org.example.service.CatService
 import org.example.web.webApp
 import org.http4k.base64DecodedArray
+import org.http4k.client.OkHttp
 import org.http4k.config.Environment
 import org.http4k.contract.ui.swaggerUiLite
+import org.http4k.core.HttpHandler
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
@@ -33,7 +44,8 @@ import java.util.concurrent.TimeUnit
 fun createApp(
     env: Environment,
     clock: Clock,
-    uuidGenerator: () -> UUID = { UUID.randomUUID() }
+    uuidGenerator: () -> UUID = { UUID.randomUUID() },
+    internet: HttpHandler
 ): CatService {
 
     val dbConfig = HikariConfig().apply {
@@ -54,7 +66,8 @@ fun createApp(
         CatsRepository(datasource.catsQueries),
         clock,
         uuidProvider = uuidGenerator,
-        jwtVerifier = getJwtVerifier(env)
+        jwtVerifier = getJwtVerifier(env),
+        catNamesClient = CatNamesClient(env[catNamesApiHost], internet) // we are passing internet httphandler here so that we can make it configurable for our tests
     )
 
 }
@@ -90,7 +103,11 @@ fun getJwtVerifier(env: Environment): JWTVerifier {
 
 fun main() {
     val env = Environment.ENV
-    val catsApp = createApp(env, Clock.systemUTC()).api()
+    val catsApp = createApp(env,
+        Clock.systemUTC(),
+        internet = OkHttp() // by default JavaHttpClient() client is available for development but there are many other clients available like OkHttp
+    )
+        .api()
 
     val webApp =  webApp(
         env[audience],

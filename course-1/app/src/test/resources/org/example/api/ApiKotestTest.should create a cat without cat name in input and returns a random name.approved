@@ -1,0 +1,9 @@
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "userId": "userId1",
+  "createdAt": "2026-02-14T12:13:14Z",
+  "name": "name1",
+  "dateOfBirth": "2026-01-01",
+  "breed": "test-breed",
+  "color": "test-color"
+}

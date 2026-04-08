@@ -2,24 +2,30 @@ package org.example.api
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.kotest.matchers.be
-import org.example.*
 import org.example.config.audience
+import org.example.config.catNamesApiHost
 import org.example.config.dbPassword
 import org.example.config.dbUrl
 import org.example.config.dbUser
 import org.example.config.issuer
 import org.example.config.publicKey
+import org.example.createApp
+import org.example.fakeCatNames
 import org.example.model.Cat
 import org.example.model.CatDto
 import org.http4k.base64Encode
 import org.http4k.config.Environment
 import org.http4k.config.Secret
-import org.http4k.core.*
+import org.http4k.core.Body
+import org.http4k.core.Method
+import org.http4k.core.Request
+import org.http4k.core.Status
+import org.http4k.core.Uri
+import org.http4k.core.with
 import org.http4k.format.Moshi.auto
-import org.http4k.kotest.shouldHaveBody
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.bearerAuth
+import org.http4k.routing.reverseProxy
 import org.http4k.testing.Approver
 import org.http4k.testing.JsonApprovalTest
 import org.http4k.testing.assertApproved
@@ -32,6 +38,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
+import kotlin.random.Random
 
 
 // Use Testing: Approval to compare the responses of the api, we can't rely on lens because the data might be in bytes,
@@ -39,6 +46,8 @@ import java.util.*
 // Link - https://www.http4k.org/ecosystem/http4k/reference/approvaltests/
 @ExtendWith(JsonApprovalTest::class)
 class ApiKotestTest {
+
+    private val CAT_NAMES_API_HOST = Uri.of("http://cats.test")
 
     private val keyPair = KeyPairGenerator.getInstance("RSA")
         .apply { this.initialize(2048) }
@@ -65,10 +74,15 @@ class ApiKotestTest {
             issuer of "cats_idp",
             audience of "cats_app",
             dbUser of "sa",
-            dbPassword of Secret("randomPassword")
+            dbPassword of Secret("randomPassword"),
+            catNamesApiHost of Uri.of("http://cats.test")
         ),
         Clock.fixed(Instant.parse("2026-02-14T12:13:14Z"), ZoneId.of("UTC")),
-        { UUID.fromString("11111111-1111-1111-1111-111111111111") }
+        { UUID.fromString("11111111-1111-1111-1111-111111111111") },
+        // we can't inject OkHttp() or JavaHttpClient() because we don't want our tests to use real api but a mock, for this purpose we will use reverseProxy() method
+        reverseProxy( // go inside reverseProxy() method to understand it better
+            CAT_NAMES_API_HOST.host to fakeCatNames(Random(10)) // giving Random(seed) means it will generate same random number every time, means sequence is deterministic
+        )
     )
 
     private val catApi = catService.api()
@@ -113,6 +127,23 @@ class ApiKotestTest {
         // you need to create a .APPROVED file which will have the expected response with same name as above
         approver.assertApproved(response, Status.CREATED)
     }
+
+    @Test
+    fun `should create a cat without cat name in input and returns a random name`(approver: Approver) {
+        val response = Request(Method.POST, "/v1/cats")
+            .with(
+                catBodyLens of CatDto(
+                    null, LocalDate.parse("2026-01-01"), "test-breed", "test-color"
+                )
+            )
+            .bearerAuth(createToken("userId1"))
+            .let(catApi)
+
+        // it is going to create a JSON file with test-class name and test name.ACTUAL in test/resources folder
+        // you need to create a .APPROVED file which will have the expected response with same name as above
+        approver.assertApproved(response, Status.CREATED)
+    }
+
 
     @Test
     fun `should delete a cat`() {

@@ -16,7 +16,7 @@ data class Cat(
 
 // we need CatDto as we don't want to give outsiders permission to create id and createdAt
 data class CatDto(
-    val name: String,
+    val name: String?,
     val dateOfBirth: LocalDate,
     val breed: String,
     val color: String,
