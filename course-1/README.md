@@ -21,4 +21,7 @@ FLUSH PRIVILEGES;
 
 ## Plugins
 * SqlDelight IntelliJ plugin doesn't work with latest IntelliJ versions
+
+# Learning Continues
+* Haven't watched video no 6 & 7 as it only talks about AWS Deployment with and without IAC CloudFormation, not Http4k
 * 
